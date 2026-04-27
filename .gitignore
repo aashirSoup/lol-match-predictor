@@ -206,5 +206,31 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
+# Other files to ignore
 lol-match-predictor-roadmap.md
 learning
+CLAUDE.md
+config/settings.py
+
+# Claude Code local settings
+.claude/
+
+# ML model artifacts
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.onnx
+models/
+
+# Data files (keep .gitkeep placeholders, ignore actual data)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Windows
+Thumbs.db
+desktop.ini
