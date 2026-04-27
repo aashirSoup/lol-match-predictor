@@ -82,7 +82,7 @@ class RiotClient:
                 time.sleep(self.request_delay)
         raise requests.exceptions.RequestException(f"Failed to get a successful response after {self.max_retries} attempts. URL: {url}")
 
-    def get_puuid(self, game_name: str, tag_line: str) -> str:
+    def get_puuid(self, game_name: str, tag_line: str) -> str | None:
         """Look up a player's PUUID by their Riot ID.
 
         Args:
@@ -96,11 +96,14 @@ class RiotClient:
         url = self.base_url + self.URLS["puuid"].format(game_name=game_name, tag_line=tag_line)
         response = self._make_request(url)
         if response is not None:
-            return response.get("puuid", "")
+            try:
+                return response["puuid"]
+            except KeyError:
+                raise ValueError(f"Could not find PUUID for {game_name}#{tag_line}")
         else:
-            raise ValueError(f"Could not find PUUID for {game_name}#{tag_line}")
+            return None
 
-    def get_match_ids(self, puuid: str, count: int = 20, queue: int = 420) -> list[str]:
+    def get_match_ids(self, puuid: str, count: int = 20, queue: int = 420) -> list[str]: # type: ignore[return]
         """Get recent match IDs for a player.
 
         Args:
@@ -112,7 +115,11 @@ class RiotClient:
             A list of match ID strings.
         """
         # TODO: build url, add query params (count, queue), call _make_request
-        pass
+        
+        params = {count=count, queue=queue}
+
+
+
 
     def get_match_detail(self, match_id: str) -> dict:
         """Get full match data for a single match.
