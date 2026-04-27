@@ -1,5 +1,6 @@
 import time
 from typing import Any
+from typing import cast
 
 import requests
 
@@ -38,7 +39,7 @@ class RiotClient:
         self.base_url = self.URLS["base"].format(region=region)
         self.headers = {"X-Riot-Token": api_key}
 
-    def _make_request(self, url: str) -> dict[str, Any] | None:
+    def _make_request(self, url: str, params: dict | None = None) -> dict[str, Any] | list | None:
         """Send a GET request with rate limiting, error handling, and retries.
 
         This is the ONLY method that calls requests.get().
@@ -54,13 +55,13 @@ class RiotClient:
             - Sleep for self.request_delay before each call
             - 429 (rate limited): read Retry-After header, sleep, retry
             - 404 (not found): raise or return None (your choice)
-            - 500/503 (server error): retry up to max_retries
+            - 500/503 (server error): retry up to max_retriesfor
             - Timeouts: retry up to max_retries
         """
         for _ in range(self.max_retries):
             try:
                 time.sleep(self.request_delay)
-                response = requests.get(url=url, headers=self.headers, timeout = 10)
+                response = requests.get(url=url, headers=self.headers, timeout = 10, params=params)
                 response.raise_for_status()
                 return response.json()
             except requests.exceptions.HTTPError as e:
@@ -92,18 +93,13 @@ class RiotClient:
         Returns:
             The player's PUUID string.
         """
-        # TODO: build url, call _make_request, return the puuid from response
         url = self.base_url + self.URLS["puuid"].format(game_name=game_name, tag_line=tag_line)
         response = self._make_request(url)
-        if response is not None:
-            try:
-                return response["puuid"]
-            except KeyError:
-                raise ValueError(f"Could not find PUUID for {game_name}#{tag_line}")
-        else:
-            return None
+        if isinstance(response, dict):
+            return cast(str | None, response["puuid"])
+        return None
 
-    def get_match_ids(self, puuid: str, count: int = 20, queue: int = 420) -> list[str]: # type: ignore[return]
+    def get_match_ids(self, puuid: str, count: int = 20, queue: int = 420) -> list[str] | None:
         """Get recent match IDs for a player.
 
         Args:
@@ -114,14 +110,13 @@ class RiotClient:
         Returns:
             A list of match ID strings.
         """
-        # TODO: build url, add query params (count, queue), call _make_request
-        
-        params = {count=count, queue=queue}
+        url = self.base_url + self.URLS["match_ids"].format(puuid=puuid)
+        response = self._make_request(url, params={"count": count, "queue": queue})
+        return response if isinstance(response, list) else None
 
 
 
-
-    def get_match_detail(self, match_id: str) -> dict:
+    def get_match_detail(self, match_id: str) -> dict[str, Any] | None:
         """Get full match data for a single match.
 
         Args:
@@ -131,4 +126,8 @@ class RiotClient:
             The full match data dict.
         """
         # TODO: build url, call _make_request, return full response
-        pass
+        url = self.base_url + self.URLS["match_detail"].format(match_id=match_id)
+        response = self._make_request(url)
+        if isinstance(response, dict):
+            return response
+        return None
