@@ -19,7 +19,7 @@ pytestmark = pytest.mark.skipif(API_KEY is None, reason="RIOT_API_KEY not set")
 @pytest.fixture
 def client():
     """Create a RiotClient with the real API key."""
-    return RiotClient(api_key=API_KEY, region="americas")
+    return RiotClient(api_key=API_KEY, region="americas") # pyright: ignore[reportArgumentType]
 
 
 # ---- Use your own Riot ID for these tests ----
@@ -85,3 +85,4 @@ class TestSaveFixture:
 
         assert os.path.exists(fixture_path)
         print(f"\nFixture saved to {fixture_path}")
+        

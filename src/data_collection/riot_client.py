@@ -114,8 +114,6 @@ class RiotClient:
         response = self._make_request(url, params={"count": count, "queue": queue})
         return response if isinstance(response, list) else None
 
-
-
     def get_match_detail(self, match_id: str) -> dict[str, Any] | None:
         """Get full match data for a single match.
 
@@ -125,7 +123,6 @@ class RiotClient:
         Returns:
             The full match data dict.
         """
-        # TODO: build url, call _make_request, return full response
         url = self.base_url + self.URLS["match_detail"].format(match_id=match_id)
         response = self._make_request(url)
         if isinstance(response, dict):
