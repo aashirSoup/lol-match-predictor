@@ -11,7 +11,7 @@ This app uses match data from Riot Games' API to train a model that can predict 
 ## How It Works
 
 1. **Data Collection** — Match data is pulled from the Riot Games API (Diamond+ ranked games)
-2. **Feature Engineering** — Raw match data is transformed into useful inputs like team comp breakdown, champion synergies, and player rank
+2. **Feature Engineering** — Raw match data is transformed into useful inputs like team composition breakdown, champion synergies, and player rank
 3. **Model Training** — An XGBoost model is trained on the processed data to learn patterns that lead to wins and losses
 4. **Prediction** — Given a set of 10 champion picks, the model outputs a win probability for each team
 
