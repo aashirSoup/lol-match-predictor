@@ -13,7 +13,12 @@ if __name__ == "__main__":
     assert puuid is not None, "Failed to resolve puuid"
 
     # Seed with your own matches
-    fetch_and_store_matches(client, [puuid], 20)
+    fetch_and_store_matches(client, [puuid], 100)
 
     # Snowball from there
-    snowball_collect(client, rounds=3, matches_per_player=20)
+    snowball_collect(client, rounds=5, matches_per_player=50)
+
+
+# amount of files
+# from pathlib import Path
+# print(len(list(Path("data/raw").glob("*.json"))))
