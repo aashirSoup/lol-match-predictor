@@ -17,13 +17,17 @@ class RiotClient:
     """
 
     URLS: dict[str, str] = {
-        "base": "https://{region}.api.riotgames.com",
-        "puuid": "/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}",
-        "match_ids": "/lol/match/v5/matches/by-puuid/{puuid}/ids",
-        "match_detail": "/lol/match/v5/matches/{match_id}",
-    }
+    "base": "https://{region}.api.riotgames.com",
+    "platform_base": "https://{platform}.api.riotgames.com",
+    "puuid": "/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}",
+    "match_ids": "/lol/match/v5/matches/by-puuid/{puuid}/ids",
+    "match_detail": "/lol/match/v5/matches/{match_id}",
+    "summoner_by_puuid": "/lol/summoner/v4/summoners/by-puuid/{puuid}",
+    "rank": "/lol/league/v4/entries/by-summoner/{summoner_id}",
+    "rank_by_puuid": "/lol/league/v4/entries/by-puuid/{puuid}"
+}
 
-    def __init__(self, api_key: str, region: str = "americas", request_delay: float = 0.1, max_retries: int = 3):
+    def __init__(self, api_key: str, region: str = "americas", platform: str = 'na1', request_delay: float = 0.1, max_retries: int = 3):
         """Store config and build the base URL.
 
         Args:
@@ -31,6 +35,7 @@ class RiotClient:
             region: Regional routing value (americas, europe, asia, sea).
             request_delay: Seconds to wait between requests.
             max_retries: How many times to retry a failed request.
+            platform: platform url e.g) na1
         """
         self.api_key = api_key
         self.region = region
@@ -38,6 +43,7 @@ class RiotClient:
         self.max_retries = max_retries
         self.base_url = self.URLS["base"].format(region=region)
         self.headers = {"X-Riot-Token": api_key}
+        self.platform_url = self.URLS["platform_base"].format(platform=platform)
 
     def _make_request(self, url: str, params: dict | None = None) -> dict[str, Any] | list | None:
         """Send a GET request with rate limiting, error handling, and retries.
@@ -128,3 +134,24 @@ class RiotClient:
         if isinstance(response, dict):
             return response
         return None
+
+    def get_summoner_by_puuid(self, puuid: str) -> dict | None:
+        # GET /lol/summoner/v4/summoners/by-puuid/{puuid}
+        # Uses platform routing (na1), not regional
+        url = self.platform_url + self.URLS["summoner_by_puuid"].format(puuid=puuid)
+        response = self._make_request(url)
+        if isinstance(response, dict):
+            return response
+        return None
+
+
+    def get_rank(self, puuid: str) -> list | None:
+        # GET /lol/league/v4/entries/by-summoner/{summoner_id}
+        # Uses platform routing (na1), returns a list of queue entries
+        url = self.platform_url + self.URLS["rank_by_puuid"].format(puuid=puuid)
+
+        response = self._make_request(url)
+        if isinstance(response, list):
+            return response
+        return None
+    

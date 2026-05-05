@@ -8,7 +8,7 @@ if __name__ == "__main__":
     api_key = os.getenv("RIOT_API_KEY")
     assert api_key is not None, "RIOT_API_KEY is not set"
 
-    client = RiotClient(api_key, "americas", 0.1, 3)
+    client = RiotClient(api_key, "americas",'na1', 0.1, 3)
     puuid = client.get_puuid("Soup Lover", "ItLit")
     assert puuid is not None, "Failed to resolve puuid"
 
@@ -19,6 +19,4 @@ if __name__ == "__main__":
     snowball_collect(client, rounds=5, matches_per_player=50)
 
 
-# amount of files
-# from pathlib import Path
-# print(len(list(Path("data/raw").glob("*.json"))))
+
